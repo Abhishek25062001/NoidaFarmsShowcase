@@ -337,8 +337,11 @@
   footer { background: var(--night); color: var(--night-muted); padding: 48px 0 40px; font-size: 14px; }
   .foot { display: flex; flex-wrap: wrap; gap: 24px 40px; justify-content: space-between; align-items: flex-start; }
   .foot .brand span { color: var(--night-text); }
-  /* Real lockup has a white artboard — invert made it a blank square on the dark footer. */
-  .foot .brand img { background: #fff; border-radius: 8px; }
+  /* Same asset as the nav. Do not invert — the SVG has a white artboard and invert becomes a blank square. */
+  .foot .brand img {
+    width: 34px; height: 34px; object-fit: contain;
+    background: #fff; border-radius: 8px; padding: 2px;
+  }
   .foot p { margin: 12px 0 0; max-width: 52ch; }
   .foot p a { color: inherit; text-decoration: none; }
   .foot p a:hover { color: var(--green); }
@@ -442,7 +445,7 @@
 
       <div class="hero-visual">
         <div class="halo" aria-hidden="true"></div>
-        <img class="mark" src="assets/logo.svg" alt="" aria-hidden="true">
+        <!-- Phone mockup only — JS mounts CONFIG.hero into #hero-shot. Do not add a second <img> here. -->
         <div class="hero-shot" id="hero-shot"></div>
       </div>
     </div>
