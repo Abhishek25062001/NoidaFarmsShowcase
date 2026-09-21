@@ -1,0 +1,975 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Noida Farms · Product Showcase</title>
+<meta name="description" content="Noida Farms: farmhouse discovery, availability and booking on Android and iOS, with a vendor dashboard and an admin panel. A product showcase with demo videos and the tech behind it.">
+<meta name="theme-color" content="#2DC553">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Noida Farms · Product Showcase">
+<meta property="og:description" content="Farmhouse discovery, availability and booking, with a vendor dashboard and an admin panel. Built with React Native, Node.js and MongoDB.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+<link rel="apple-touch-icon" href="assets/logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    /* Noida Farms brand, straight from the app's COLORS constant:
+       primary #2DC553 · primaryDark #257B00 · primaryLight #EDFAF0
+       background #FFFFFF · text #252A32 · textSecondary #666666 · border #E5E5E5 · danger #E53935
+       #2DC553 is only 2.3:1 on white, so it is used as a FILL (icons, glows, gradients,
+       numbers on dark) and never as text. #257B00 is 5.4:1 on white and carries every
+       green label, link and button. */
+    --green: #2DC553;
+    --green-dark: #257B00;
+    --green-tint: #EDFAF0;
+    --green-tint-2: #DCF3E2;
+    --btn: #257B00;
+    --btn-hover: #1D6100;
+    --paper: #FFFFFF;
+    --canvas: #F6FAF7;
+    --canvas-2: #EEF6F0;
+    --ink: #252A32;
+    --ink-2: #4A515C;
+    --muted: #666666;
+    --line: #E5E5E5;
+    --line-2: #D3DED7;
+    --danger: #E53935;
+    --night: #0F1712;
+    --night-2: #16241B;
+    --night-text: #EAF3EC;
+    --night-muted: #9FB3A6;
+    --radius: 20px;
+    --shadow: 0 1px 2px rgba(20, 40, 25, .05), 0 14px 36px -14px rgba(20, 70, 35, .18);
+    --font-display: "Cinzel", Georgia, "Times New Roman", serif;
+    --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --gutter: 16px;
+    --max: 1160px;
+  }
+  @media (min-width: 720px) { :root { --gutter: 28px; } }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  img, video, svg { display: block; max-width: 100%; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--green-dark); outline-offset: 3px; border-radius: 6px; }
+  .wrap { width: 100%; max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  section { scroll-margin-top: 76px; }
+  .icon { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .icon-fill { fill: currentColor; stroke: none; }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 46px; padding: 0 20px; border-radius: 999px;
+    font: 600 15px/1 var(--font-body); text-decoration: none; white-space: nowrap;
+    border: 1.5px solid transparent; cursor: pointer;
+    transition: background-color .18s, border-color .18s, transform .18s, box-shadow .18s;
+  }
+  .btn:active { transform: scale(.98); }
+  .btn-primary { background: var(--btn); color: #fff; box-shadow: 0 10px 24px -10px rgba(37, 123, 0, .6); }
+  .btn-primary:hover { background: var(--btn-hover); }
+  .btn-ghost { background: var(--paper); color: var(--ink); border-color: var(--line-2); }
+  .btn-ghost:hover { border-color: var(--green-dark); color: var(--green-dark); }
+  .btn .icon { width: 18px; height: 18px; }
+
+  /* ---------- Nav ---------- */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255, 255, 255, .84);
+    backdrop-filter: saturate(1.4) blur(14px); -webkit-backdrop-filter: saturate(1.4) blur(14px);
+    border-bottom: 1px solid transparent; transition: border-color .2s;
+  }
+  .nav.scrolled { border-bottom-color: var(--line); }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .brand img { width: 34px; height: 34px; }
+  .brand span { font: 700 19px/1 var(--font-display); letter-spacing: .02em; }
+  .nav-links { display: none; gap: 4px; list-style: none; margin: 0; padding: 0; }
+  .nav-links a { display: block; padding: 8px 12px; border-radius: 999px; font-size: 14px; font-weight: 500; color: var(--ink-2); text-decoration: none; }
+  .nav-links a:hover { background: var(--green-tint); color: var(--green-dark); }
+  .nav .btn { min-height: 40px; padding: 0 16px; font-size: 14px; }
+  @media (min-width: 900px) { .nav-links { display: flex; } }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative; overflow: hidden;
+    background:
+      radial-gradient(55% 60% at 85% 30%, rgba(45, 197, 83, .16), transparent 70%),
+      radial-gradient(42% 48% at 0% 100%, rgba(37, 123, 0, .10), transparent 70%),
+      var(--paper);
+  }
+  .hero-grid { display: grid; gap: 48px; align-items: center; padding-top: 48px; padding-bottom: 72px; }
+  @media (min-width: 960px) { .hero-grid { grid-template-columns: 1.08fr .92fr; padding-top: 72px; padding-bottom: 96px; } }
+  .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--green-dark); }
+  .eyebrow::before { content: ""; width: 22px; height: 2px; background: var(--green); border-radius: 2px; }
+  /* Locks the wordmark to the logo's two-tone lockup: "NOIDA" in ink, "FARMS" in brand green. */
+  .hero h1 { margin: 14px 0 0; font: 800 clamp(42px, 7.4vw, 78px)/1 var(--font-display); letter-spacing: .01em; color: var(--ink); }
+  .hero h1 .farms {
+    background: linear-gradient(100deg, #257B00, #2DC553);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero .lead { margin: 20px 0 0; max-width: 36ch; font-size: clamp(18px, 2.2vw, 22px); line-height: 1.5; color: var(--ink-2); }
+  .byline { margin: 22px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; font-size: 15px; color: var(--muted); }
+  .byline strong { color: var(--ink); font-weight: 700; }
+  .byline a { color: inherit; text-decoration: none; }
+  .byline a:hover { color: var(--green-dark); text-decoration: underline; }
+  .byline .sep { width: 4px; height: 4px; border-radius: 50%; background: var(--line-2); }
+  @media (max-width: 520px) { .byline .sep { display: none; } }
+  .contact-links { display: inline-flex; gap: 6px; }
+  .contact-links a { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line-2); background: var(--paper); color: var(--ink-2); }
+  .contact-links a:hover { color: var(--green-dark); border-color: var(--green-dark); }
+  .contact-links .icon { width: 16px; height: 16px; }
+  .hero-ctas { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 12px; }
+  .stack-line { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .stack-line span { font-size: 13px; font-weight: 600; color: var(--ink-2); padding: 6px 12px; border-radius: 999px; background: var(--paper); border: 1px solid var(--line); }
+
+  .hero-visual { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; min-height: 520px; }
+  .hero-visual .halo { position: absolute; width: min(460px, 92%); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, rgba(45, 197, 83, .30), rgba(37, 123, 0, .06) 55%, transparent 70%); }
+  .hero-visual .mark { position: absolute; width: min(460px, 92%); opacity: .05; pointer-events: none; }
+  .float-chip {
+    position: absolute; z-index: 3; display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; border-radius: 14px; background: var(--paper); border: 1px solid var(--line);
+    box-shadow: var(--shadow); font-size: 13px; font-weight: 600; color: var(--ink); white-space: nowrap;
+  }
+  .float-chip small { display: block; font-size: 11px; font-weight: 500; color: var(--muted); }
+  .float-chip .chip-icon { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; background: var(--green-tint); color: var(--green-dark); }
+  .float-chip .chip-icon .icon { width: 16px; height: 16px; }
+  .chip-a { top: 12%; left: 0; }
+  .chip-b { bottom: 12%; right: 0; }
+  @media (max-width: 520px) { .chip-a { left: -4px; top: 6%; } .chip-b { right: -4px; bottom: 6%; } }
+
+  .hero-shot { position: relative; z-index: 2; display: grid; place-items: center; width: 100%; }
+  .hero-img { width: min(440px, 100%); height: auto; filter: drop-shadow(0 34px 38px rgba(20, 70, 35, .20)); }
+  .screen-img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+
+  /* ---------- Device frames ---------- */
+  .device { position: relative; z-index: 2; }
+  .phone {
+    position: relative; width: min(290px, 74vw); aspect-ratio: 9 / 19.5;
+    border-radius: 46px; padding: 11px; background: linear-gradient(145deg, #252A32, #0d1a12);
+    box-shadow: 0 40px 70px -30px rgba(15, 60, 30, .5), 0 0 0 1.5px #39413a inset, 0 0 0 4px rgba(255, 255, 255, .6);
+  }
+  .phone .screen { position: absolute; inset: 11px; border-radius: 36px; overflow: hidden; background: #0d1a12; }
+  .phone::after { /* iPhone dynamic island */
+    content: ""; position: absolute; z-index: 4; top: 22px; left: 50%; transform: translateX(-50%);
+    width: 84px; height: 24px; border-radius: 20px; background: #000;
+  }
+  .device.android .phone { border-radius: 38px; }
+  .device.android .phone .screen { border-radius: 28px; }
+  .device.android .phone::after { width: 12px; height: 12px; top: 22px; border-radius: 50%; }
+  .device.is-landscape { width: 100%; }
+  .device.is-landscape .phone { width: min(560px, 100%); margin: 0 auto; aspect-ratio: 16 / 10; border-radius: 22px; padding: 8px; }
+  .device.is-landscape .phone .screen { inset: 8px; border-radius: 14px; }
+  .device.is-landscape .phone::after { display: none; }
+  .screen video { width: 100%; height: 100%; object-fit: cover; }
+  .device.is-landscape .screen video { object-fit: contain; background: #000; }
+  .screen-ph {
+    position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+    padding: 24px; text-align: center; color: var(--night-text);
+    background: radial-gradient(80% 60% at 50% 35%, rgba(45, 197, 83, .30), transparent 70%), linear-gradient(180deg, #16241B, #0d1a12);
+  }
+  /* Real lockup has a white artboard — don't invert it (that became a blank square). */
+  .screen-ph img {
+    width: 72px; height: 72px; object-fit: contain;
+    background: #fff; border-radius: 12px; padding: 6px;
+  }
+  .screen-ph b { font: 700 17px/1.2 var(--font-display); letter-spacing: .02em; }
+  .screen-ph span { font-size: 12.5px; line-height: 1.45; color: var(--night-muted); max-width: 22ch; }
+  .screen-ph code { font-size: 11px; color: var(--green); word-break: break-all; }
+  .device-ctrls { position: absolute; z-index: 5; right: 22px; bottom: 22px; display: flex; gap: 8px; }
+  .device.is-landscape .device-ctrls { right: 16px; bottom: 16px; }
+  .device-ctrls button {
+    display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, .25); background: rgba(13, 26, 18, .55); color: #fff;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
+  .device-ctrls button:hover { background: rgba(37, 123, 0, .85); }
+  .device-ctrls .icon { width: 16px; height: 16px; }
+
+  /* ---------- Section scaffolding ---------- */
+  .section { padding: 88px 0; }
+  .section-tint { background: var(--canvas); }
+  .section-head { max-width: 720px; margin-bottom: 44px; }
+  .section-head.center { margin-left: auto; margin-right: auto; text-align: center; }
+  .section-head.center .eyebrow { justify-content: center; }
+  h2 { margin: 12px 0 0; font: 700 clamp(28px, 4.2vw, 42px)/1.15 var(--font-display); letter-spacing: .005em; }
+  .section-head p { margin: 16px 0 0; font-size: 17px; color: var(--ink-2); }
+
+  /* ---------- Scope (dark band) ---------- */
+  .numbers {
+    position: relative; overflow: hidden; color: var(--night-text);
+    background:
+      radial-gradient(50% 70% at 15% 0%, rgba(45, 197, 83, .22), transparent 70%),
+      radial-gradient(45% 60% at 95% 100%, rgba(37, 123, 0, .26), transparent 70%),
+      var(--night);
+  }
+  .numbers .eyebrow { color: var(--green); }
+  .numbers .eyebrow::before { background: var(--green); }
+  .numbers .section-head p { color: var(--night-muted); }
+  .stat-grid { display: grid; gap: 1px; grid-template-columns: repeat(2, minmax(0, 1fr)); background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .08); border-radius: var(--radius); overflow: hidden; }
+  @media (min-width: 720px) { .stat-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .stat { position: relative; padding: 26px 22px 24px; background: rgba(15, 23, 18, .92); }
+  .stat .num {
+    display: block; font: 700 clamp(34px, 4.6vw, 48px)/1 var(--font-display); font-variant-numeric: tabular-nums;
+    background: linear-gradient(180deg, #9EF0B4, var(--green)); -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .stat .label { display: block; margin-top: 10px; font-size: 15px; font-weight: 600; color: var(--night-text); }
+  .stat .sub { display: block; margin-top: 2px; font-size: 13px; color: var(--night-muted); }
+  .stat-ph { padding: 28px 24px; border: 1px dashed rgba(255, 255, 255, .22); border-radius: var(--radius); color: var(--night-muted); font-size: 14px; }
+  .stat-ph code { color: var(--green); }
+
+  /* ---------- Features ---------- */
+  .feature-grid { display: grid; gap: 18px; grid-template-columns: 1fr; }
+  @media (min-width: 640px) { .feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 1000px) { .feature-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+  .feature { display: flex; flex-direction: column; padding: 26px 24px 22px; transition: transform .2s, border-color .2s; }
+  .feature:hover { transform: translateY(-3px); border-color: var(--line-2); }
+  .feature-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; color: var(--green-dark); background: linear-gradient(145deg, var(--green-tint), var(--green-tint-2)); }
+  .feature-icon .icon { width: 24px; height: 24px; }
+  .feature h3 { margin: 18px 0 0; font-size: 19px; line-height: 1.3; font-weight: 700; }
+  .feature p { margin: 8px 0 0; font-size: 15px; color: var(--ink-2); }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 18px; }
+  .tags span { font-size: 12px; font-weight: 600; color: var(--green-dark); padding: 4px 10px; border-radius: 999px; background: var(--green-tint); }
+
+  /* ---------- Demo ---------- */
+  .demo-grid { display: grid; gap: 56px 32px; justify-items: center; }
+  @media (min-width: 760px) { .demo-grid { grid-template-columns: 1fr 1fr; } }
+  .demo-item { display: flex; flex-direction: column; align-items: center; gap: 26px; width: 100%; }
+  .demo-item .device.is-landscape { width: 100%; }
+  .platform { display: flex; align-items: center; gap: 12px; }
+  .platform-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: var(--ink); color: #fff; }
+  .platform-icon .icon { width: 20px; height: 20px; }
+  .platform b { display: block; font: 700 18px/1.2 var(--font-display); letter-spacing: .02em; }
+  .platform span { font-size: 14px; color: var(--muted); }
+  .platform a { color: var(--green-dark); font-weight: 600; text-decoration: none; }
+  .platform a:hover { text-decoration: underline; }
+
+  /* ---------- Build (highlights + architecture) ---------- */
+  .build-grid { display: grid; gap: 40px; }
+  @media (min-width: 1000px) { .build-grid { grid-template-columns: 1.05fr .95fr; align-items: start; } }
+  .highlights { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+  .highlights li { display: grid; grid-template-columns: 52px 1fr; gap: 4px 12px; padding: 20px 22px; }
+  .highlights .n { grid-row: span 2; font: 700 25px/1 var(--font-display); color: var(--green-dark); padding-top: 2px; }
+  .highlights b { font-size: 16.5px; line-height: 1.35; }
+  .highlights p { margin: 0; font-size: 14.5px; color: var(--ink-2); }
+
+  .arch { padding: 24px 22px; position: sticky; top: 88px; }
+  .arch h3 { margin: 0 0 4px; font: 700 19px/1.3 var(--font-display); letter-spacing: .02em; }
+  .arch > p { margin: 0 0 20px; font-size: 14px; color: var(--muted); }
+  .tier { border: 1px dashed var(--line-2); border-radius: 16px; padding: 14px; background: var(--canvas); }
+  .tier-label { display: block; margin-bottom: 10px; font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--green-dark); }
+  .nodes { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); }
+  .node { padding: 10px 12px; border-radius: 12px; background: var(--paper); border: 1px solid var(--line); }
+  .node b { display: block; font-size: 14px; line-height: 1.3; }
+  .node small { display: block; margin-top: 2px; font-size: 12px; line-height: 1.4; color: var(--muted); }
+  .node.hot { border-color: rgba(45, 197, 83, .55); box-shadow: 0 0 0 3px rgba(45, 197, 83, .10); }
+  .flow { display: flex; justify-content: center; padding: 6px 0; color: var(--green-dark); }
+  .flow svg { width: 22px; height: 22px; }
+  .svc { display: flex; flex-wrap: wrap; gap: 6px; }
+  .svc span { font-size: 12.5px; font-weight: 600; padding: 5px 10px; border-radius: 999px; background: var(--paper); border: 1px solid var(--line); color: var(--ink-2); }
+  .tier + .tier-gap { height: 10px; }
+
+  /* ---------- Tech ---------- */
+  .tech-grid { display: grid; gap: 18px; }
+  @media (min-width: 760px) { .tech-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .tech { padding: 22px 22px 24px; }
+  .tech h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; font-size: 16px; font-weight: 700; }
+  .tech h3 .icon { color: var(--green-dark); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips span { font-size: 13.5px; font-weight: 500; padding: 7px 12px; border-radius: 10px; background: var(--canvas); border: 1px solid var(--line); color: var(--ink); }
+  .chips .ph { border-style: dashed; color: var(--muted); }
+
+  /* ---------- Collabs ---------- */
+  .reel-grid { display: grid; gap: 22px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); justify-items: center; }
+  .reel { width: 100%; max-width: 340px; }
+  .reel .instagram-media { margin: 0 !important; min-width: 0 !important; width: 100% !important; border-radius: 16px !important; }
+  .reel-label { margin-top: 10px; font-size: 14px; font-weight: 600; text-align: center; color: var(--ink-2); }
+  .reel-ph { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; aspect-ratio: 9 / 14; padding: 20px; text-align: center; border: 2px dashed var(--line-2); border-radius: 18px; color: var(--muted); font-size: 14px; background: var(--paper); }
+  .reel-ph .icon { width: 32px; height: 32px; color: var(--green-dark); }
+
+  /* ---------- Source code ---------- */
+  .repo-grid { display: grid; gap: 16px; }
+  @media (min-width: 640px) { .repo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .repo { display: flex; gap: 16px; align-items: flex-start; padding: 20px 22px; text-decoration: none; transition: border-color .2s, transform .2s; }
+  a.repo:hover { border-color: var(--green-dark); transform: translateY(-2px); }
+  .repo-icon { display: grid; place-items: center; width: 44px; height: 44px; flex: none; border-radius: 12px; background: var(--ink); color: #fff; }
+  .repo-icon .icon { width: 22px; height: 22px; }
+  .repo b { display: block; font-size: 16px; line-height: 1.35; }
+  .repo p { margin: 3px 0 0; font-size: 14px; color: var(--muted); }
+  .repo .repo-cta { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 13.5px; font-weight: 700; color: var(--green-dark); }
+  .repo .repo-cta .icon { width: 14px; height: 14px; }
+  .repo .repo-cta.muted { color: var(--muted); }
+  .repo.is-missing { border-style: dashed; box-shadow: none; }
+
+  /* ---------- Download ---------- */
+  .download { background: linear-gradient(180deg, var(--paper) 0%, var(--canvas-2) 100%); }
+  .store-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+  .store-btn { display: inline-flex; align-items: center; gap: 12px; min-height: 58px; padding: 0 22px 0 18px; border-radius: 16px; background: var(--ink); color: #fff; text-decoration: none; transition: transform .18s, background-color .18s; }
+  .store-btn:hover { background: #000; transform: translateY(-2px); }
+  .store-btn .icon { width: 26px; height: 26px; }
+  .store-btn small { display: block; font-size: 11px; line-height: 1.2; opacity: .8; }
+  .store-btn b { display: block; font-size: 18px; line-height: 1.2; font-weight: 600; }
+  .store-btn.web { background: var(--btn); }
+  .store-btn.web:hover { background: var(--btn-hover); }
+  .store-btn.is-soon { background: var(--paper); color: var(--muted); border: 1.5px dashed var(--line-2); cursor: default; }
+  .store-btn.is-soon:hover { background: var(--paper); transform: none; }
+  @media (max-width: 520px) { .store-row { flex-direction: column; } .store-btn { justify-content: center; } }
+
+  /* ---------- Footer ---------- */
+  footer { background: var(--night); color: var(--night-muted); padding: 48px 0 40px; font-size: 14px; }
+  .foot { display: flex; flex-wrap: wrap; gap: 24px 40px; justify-content: space-between; align-items: flex-start; }
+  .foot .brand span { color: var(--night-text); }
+  .foot .brand img { filter: brightness(0) invert(1); opacity: .92; }
+  .foot p { margin: 12px 0 0; max-width: 52ch; }
+  .foot p a { color: inherit; text-decoration: none; }
+  .foot p a:hover { color: var(--green); }
+  .foot-links { display: flex; flex-wrap: wrap; gap: 8px 20px; list-style: none; margin: 0; padding: 0; }
+  .foot-links a { color: var(--night-text); text-decoration: none; font-weight: 500; }
+  .foot-links a:hover { color: var(--green); }
+  .foot-note { margin-top: 32px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, .08); font-size: 12.5px; }
+
+  /* ---------- Reveal ---------- */
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } .feature:hover, a.repo:hover, .store-btn:hover { transform: none; } }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- Shared icon sprite -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/></symbol>
+    <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h13v4"/><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M17 13h.01"/></symbol>
+    <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M5 2v20l2.5-1.6L10 22l2-1.6L14 22l2.5-1.6L19 22V2z"/><path d="M9 8h6M9 12h6"/></symbol>
+    <symbol id="i-store" viewBox="0 0 24 24"><path d="M4 9h16v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M3 9l1.5-6h15L21 9"/><path d="M9 21v-6h6v6"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
+    <symbol id="i-server" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><path d="M6 6h.01M6 18h.01"/></symbol>
+    <symbol id="i-plug" viewBox="0 0 24 24"><path d="M12 22v-5M9 8V2M15 8V2M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M7 17 17 7M7 7h10v10"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 4v16M16 4v16"/></symbol>
+    <symbol id="i-expand" viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></symbol>
+    <symbol id="i-instagram" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><path d="M17.5 6.5h.01"/></symbol>
+    <symbol id="i-github" viewBox="0 0 24 24"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56 0-.27-.01-1.17-.02-2.12-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.69 1.25 3.35.96.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.58.23 2.75.11 3.04.74.81 1.18 1.83 1.18 3.09 0 4.41-2.69 5.39-5.25 5.67.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></symbol>
+    <symbol id="i-linkedin" viewBox="0 0 24 24"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></symbol>
+    <symbol id="i-apple" viewBox="0 0 24 24"><path d="M16.37 1.43c0 1.14-.49 2.27-1.18 3.08-.74.9-1.99 1.57-2.99 1.57-.12 0-.23-.02-.3-.03-.01-.06-.04-.22-.04-.39 0-1.15.57-2.27 1.21-2.98.8-.94 2.14-1.64 3.25-1.68.03.13.05.28.05.43zm4.56 15.71c-.03.07-.46 1.58-1.52 3.12-.94 1.34-1.94 2.71-3.43 2.71-1.52 0-1.9-.88-3.63-.88-1.7 0-2.3.91-3.67.91-1.38 0-2.33-1.26-3.43-2.8-1.29-1.82-2.32-4.63-2.32-7.28 0-4.28 2.8-6.55 5.55-6.55 1.45 0 2.68.95 3.6.95.87 0 2.22-1.01 3.9-1.01.61 0 2.89.06 4.37 2.19-.13.09-2.38 1.37-2.38 4.19 0 3.26 2.85 4.42 2.96 4.45z"/></symbol>
+    <symbol id="i-android" viewBox="0 0 24 24"><path d="M17.6 9.48 19.44 6.3a.38.38 0 0 0-.14-.52.38.38 0 0 0-.52.14l-1.87 3.23a11.43 11.43 0 0 0-9.82 0L5.22 5.92a.38.38 0 0 0-.52-.14.38.38 0 0 0-.14.52L6.4 9.48A10.78 10.78 0 0 0 1 18h22a10.78 10.78 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 1.25-1.25A1.25 1.25 0 0 1 7 15.25zm10 0a1.25 1.25 0 1 1 1.25-1.25A1.25 1.25 0 0 1 17 15.25z"/></symbol>
+    <symbol id="i-play-store" viewBox="0 0 24 24"><path d="M3.61 1.81 13.79 12 3.61 22.19a1.33 1.33 0 0 1-.61-1.14V2.95c0-.48.24-.9.61-1.14zm10.89 10.9 2.54 2.54-11.9 6.86 9.36-9.4zm3.85-3.85 2.9 1.67c.83.48.83 1.66 0 2.14l-2.9 1.67L15.2 12l3.15-3.14zM5.14 1.89l11.9 6.86-2.54 2.54-9.36-9.4z"/></symbol>
+  </defs>
+</svg>
+
+<header class="nav" id="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top" aria-label="Noida Farms showcase, back to top">
+      <img src="assets/logo.svg" alt="" width="34" height="34">
+      <span>Noida Farms</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#demo">Demo</a></li>
+      <li><a href="#scope">Scope</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#build">What I built</a></li>
+      <li><a href="#tech">Tech</a></li>
+      <li data-nav="collabs"><a href="#collabs">Collabs</a></li>
+      <li data-nav="code"><a href="#code">Code</a></li>
+    </ul>
+    <a class="btn btn-primary" href="#download">Get the app</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow">Product showcase</span>
+        <h1>Noida <span class="farms">Farms</span></h1>
+        <p class="lead">Farmhouse renting — discovery, availability and booking in one app, with a vendor dashboard and an admin panel behind it.</p>
+        <div class="byline">
+          <span>Designed &amp; built by <strong data-bind="name">Abhishek Jaiswal</strong></span>
+          <span class="sep" aria-hidden="true"></span>
+          <span data-bind="role">Full-Stack &amp; Mobile Developer</span>
+          <span class="contact-links" id="contact-links"></span>
+        </div>
+        <div class="hero-ctas">
+          <a class="btn btn-primary" href="#demo">
+            <svg class="icon icon-fill"><use href="#i-play"/></svg> Watch the demo
+          </a>
+          <a class="btn btn-ghost" href="#build">
+            <svg class="icon"><use href="#i-server"/></svg> What I built
+          </a>
+          <a class="btn btn-ghost" data-href="website" data-hide-empty href="#" target="_blank" rel="noopener">
+            <svg class="icon"><use href="#i-globe"/></svg> <span data-label="website">Website</span>
+          </a>
+        </div>
+        <div class="stack-line" aria-label="Core technologies">
+          <span>React Native</span><span>Node.js</span><span>MongoDB</span><span>Mongoose</span><span>PDFKit</span>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="halo" aria-hidden="true"></div>
+        <img class="mark" src="assets/logo.svg" alt="" aria-hidden="true">
+        <div class="float-chip chip-a">
+          <span class="chip-icon"><svg class="icon"><use href="#i-home"/></svg></span>
+          <div>Farmhouse listings<small>search, filters and details</small></div>
+        </div>
+        <div class="float-chip chip-b">
+          <span class="chip-icon"><svg class="icon"><use href="#i-calendar"/></svg></span>
+          <div>Date availability<small>kept by each vendor</small></div>
+        </div>
+        <div class="hero-shot" id="hero-shot"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DEMO ============ -->
+  <section class="section section-tint" id="demo">
+    <div class="wrap">
+      <div class="section-head center reveal">
+        <span class="eyebrow">See it running</span>
+        <h2>On Android and iPhone</h2>
+        <p>Real recordings of the app on both platforms, from one React Native codebase.</p>
+      </div>
+      <div class="demo-grid">
+        <div class="demo-item reveal">
+          <div class="device android" data-video="android" data-label="Android recording"></div>
+          <div class="platform">
+            <span class="platform-icon"><svg class="icon icon-fill"><use href="#i-android"/></svg></span>
+            <div><b>Android</b><span><a data-href="playStore" data-soon="Google Play" href="#" target="_blank" rel="noopener">Google Play</a></span></div>
+          </div>
+        </div>
+        <div class="demo-item reveal">
+          <div class="device ios" data-video="ios" data-label="iPhone recording"></div>
+          <div class="platform">
+            <span class="platform-icon"><svg class="icon icon-fill"><use href="#i-apple"/></svg></span>
+            <div><b>iPhone</b><span><a data-href="appStore" data-soon="App Store" href="#" target="_blank" rel="noopener">App Store</a></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SCOPE ============ -->
+  <section class="section numbers" id="scope">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">At a glance</span>
+        <h2>Three surfaces, one backend</h2>
+        <p>Noida Farms is a customer app, an admin panel and a vendor dashboard, all sharing a single Node.js and MongoDB backend.</p>
+      </div>
+      <div class="stat-grid reveal" id="scope-grid"></div>
+    </div>
+  </section>
+
+  <!-- ============ FEATURES ============ -->
+  <section class="section" id="features">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">What it does</span>
+        <h2>Find a farmhouse, hold the dates, pay</h2>
+        <p>Guests search farmhouses, check which dates are open and book. Vendors keep their own listing, photos and availability current. Staff handle bookings and sign-in settings from an admin panel.</p>
+      </div>
+      <div class="feature-grid">
+        <article class="card feature reveal">
+          <div class="feature-icon"><svg class="icon"><use href="#i-search"/></svg></div>
+          <h3>Farmhouse discovery</h3>
+          <p>Browse farmhouses with search and filters, then open a detail view with photos, amenities and pricing.</p>
+          <div class="tags"><span>Search</span><span>Filters</span><span>Detail views</span></div>
+        </article>
+        <article class="card feature reveal">
+          <div class="feature-icon"><svg class="icon"><use href="#i-calendar"/></svg></div>
+          <h3>Dates and availability</h3>
+          <p>A booking calendar backed by the availability each vendor keeps up to date for their own farmhouse.</p>
+          <div class="tags"><span>Calendar</span><span>Availability</span></div>
+        </article>
+        <article class="card feature reveal">
+          <div class="feature-icon"><svg class="icon"><use href="#i-wallet"/></svg></div>
+          <h3>Payments and payouts</h3>
+          <p>Guests pay for a booking in the app. Vendors are paid out against the bank details held on their profile.</p>
+          <div class="tags"><span>Payments</span><span>Payouts</span></div>
+        </article>
+        <article class="card feature reveal">
+          <div class="feature-icon"><svg class="icon"><use href="#i-receipt"/></svg></div>
+          <h3>Invoices and notifications</h3>
+          <p>Bookings produce a PDF invoice on the server, and notifications keep guests and vendors up to date.</p>
+          <div class="tags"><span>PDFKit</span><span>Notifications</span></div>
+        </article>
+        <article class="card feature reveal">
+          <div class="feature-icon"><svg class="icon"><use href="#i-store"/></svg></div>
+          <h3>Vendor dashboard</h3>
+          <p>Vendors manage their own listing end to end: photos, amenities, bank details and which dates are open.</p>
+          <div class="tags"><span>Image compression</span><span>Amenities</span><span>Bank details</span></div>
+        </article>
+        <article class="card feature reveal">
+          <div class="feature-icon"><svg class="icon"><use href="#i-shield"/></svg></div>
+          <h3>Admin panel</h3>
+          <p>Staff place bookings on a guest's behalf, work the calendar directly, and turn individual sign-in methods on or off.</p>
+          <div class="tags"><span>Manual booking</span><span>Calendar</span><span>Login toggles</span></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WHAT I BUILT ============ -->
+  <section class="section section-tint" id="build">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">What I built</span>
+        <h2>Engineering highlights</h2>
+        <p>The parts of Noida Farms that took the most careful work.</p>
+      </div>
+      <div class="build-grid">
+        <ol class="highlights">
+          <li class="card reveal"><span class="n">01</span><b>Three surfaces on one backend</b><p>A React Native customer app, a React Native admin panel and a vendor dashboard, all served by a single Node.js API over MongoDB with Mongoose models.</p></li>
+          <li class="card reveal"><span class="n">02</span><b>Farmhouse listings, search and filters</b><p>Listing, search, filtering and detail views, covering photos, amenities and pricing for every farmhouse on the platform.</p></li>
+          <li class="card reveal"><span class="n">03</span><b>Availability and booking</b><p>Vendors keep their own calendar, guests book against it, and staff can place a booking manually from the admin side when it comes in another way.</p></li>
+          <li class="card reveal"><span class="n">04</span><b>Payments and vendor payouts</b><p>Guest payments on one side of the ledger and vendor payouts on the other, settled against the bank details held on each vendor profile.</p></li>
+          <li class="card reveal"><span class="n">05</span><b>Server-generated PDF invoices</b><p>Every booking produces a PDF invoice, generated on the server with PDFKit rather than assembled on the device.</p></li>
+          <li class="card reveal"><span class="n">06</span><b>Sign-in that admins control</b><p>Email, WhatsApp and Google sign-in, with admin toggles that decide which methods are offered — so a method can be turned off without shipping a release.</p></li>
+        </ol>
+
+        <aside class="card arch reveal" aria-label="System architecture">
+          <h3>How it fits together</h3>
+          <p>Three front ends, one API, one database — so guests, vendors and staff all read and write the same records.</p>
+          <div class="tier">
+            <span class="tier-label">Apps</span>
+            <div class="nodes">
+              <div class="node hot"><b>Customer app</b><small>React Native · Android + iOS</small></div>
+              <div class="node"><b>Admin panel</b><small>React Native</small></div>
+              <div class="node"><b>Vendor dashboard</b><small>listings · availability</small></div>
+            </div>
+          </div>
+          <div class="flow" aria-hidden="true"><svg class="icon"><use href="#i-down"/></svg></div>
+          <div class="tier">
+            <span class="tier-label">API · Node.js</span>
+            <div class="nodes">
+              <div class="node hot"><b>Booking API</b><small>listings · availability · bookings</small></div>
+              <div class="node"><b>Payments &amp; payouts</b><small>guest payments · vendor settlement</small></div>
+            </div>
+          </div>
+          <div class="flow" aria-hidden="true"><svg class="icon"><use href="#i-down"/></svg></div>
+          <div class="tier">
+            <span class="tier-label">Data</span>
+            <div class="nodes">
+              <div class="node"><b>MongoDB</b><small>Mongoose models</small></div>
+              <div class="node"><b>PDFKit</b><small>booking invoices</small></div>
+            </div>
+          </div>
+          <div class="tier-gap"></div>
+          <div class="tier">
+            <span class="tier-label">Sign-in</span>
+            <div class="svc">
+              <span>Email</span><span>WhatsApp</span><span>Google</span><span>Admin-controlled toggles</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TECH ============ -->
+  <section class="section" id="tech">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Tech stack</span>
+        <h2>What it runs on</h2>
+      </div>
+      <div class="tech-grid" id="tech-grid"></div>
+    </div>
+  </section>
+
+  <!-- ============ COLLABS ============ -->
+  <!-- <section class="section section-tint" id="collabs">
+    <div class="wrap">
+      <div class="section-head center reveal">
+        <span class="eyebrow">On Instagram</span>
+        <h2>Creator collaborations</h2>
+        <p>Reels made with creators to introduce Noida Farms.</p>
+      </div>
+      <div class="reel-grid" id="reel-grid"></div>
+    </div>
+  </section> -->
+
+  <!-- ============ SOURCE CODE ============ -->
+  <section class="section" id="code">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Source code</span>
+        <h2>On GitHub</h2>
+      </div>
+      <div class="repo-grid" id="repo-grid"></div>
+    </div>
+  </section>
+
+  <!-- ============ DOWNLOAD ============ -->
+  <section class="section download" id="download">
+    <div class="wrap">
+      <div class="section-head center reveal">
+        <span class="eyebrow">Try it yourself</span>
+        <h2>Get Noida Farms</h2>
+        <p id="download-sub">Available on Android and iPhone.</p>
+      </div>
+      <div class="store-row reveal" id="store-row"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a class="brand" href="#top"><img src="assets/logo.svg" alt="" width="34" height="34"><span>Noida Farms</span></a>
+        <p>Showcase by <strong style="color:var(--night-text)" data-bind="name">Abhishek Jaiswal</strong>, <span data-bind="role">Full-Stack &amp; Mobile Developer</span>.</p>
+      </div>
+      <ul class="foot-links" id="foot-links"></ul>
+    </div>
+    <!-- <p class="foot-note">Noida Farms · farmhouse renting. This page describes my work on the product.</p> -->
+  </div>
+</footer>
+
+<script>
+/* ================================================================
+   EDIT HERE: everything you'll want to change lives in CONFIG.
+   ----------------------------------------------------------------
+   Links   : playStore / appStore / website are blank. Paste them in
+             when the listings are live — every button, nav item and
+             footer link on the page picks them up automatically.
+   Videos  : drop files into assets/videos/ with these names, or point
+             `src` at any hosted .mp4. A missing file shows a placeholder.
+   Scope   : the four figures in the dark band. Keep them to things you
+             can point at in the code.
+   Tech    : chips, grouped. Add to these as you confirm each item.
+   ================================================================ */
+const CONFIG = {
+  name: "Abhishek Jaiswal",
+  role: "Full-Stack & Mobile Developer",
+
+  contact: {
+    email: "abhishekjaiswal0203@gmail.com",
+    linkedin: "https://www.linkedin.com/in/abhishekj-t800/",
+    github: "https://github.com/Abhishek25062001",
+  },
+
+  // Left blank on purpose — add them when you have them.
+  website: "",
+  playStore: "",
+  appStore: "https://apps.apple.com/in/app/noida-farms/id6760185544",
+
+  // Hero image. framed:true = a plain screen capture, the page wraps it in a phone frame.
+  //             framed:false = the image already contains the phone (transparent PNG).
+  hero: { src: "assets/images/hero.png", framed: true, alt: "Noida Farms app home screen with farmhouse listings and search" },
+
+  videos: {
+    android: { src: "assets/videos/android.mp4", poster: "" },
+    ios:     { src: "assets/videos/ios.mp4",     poster: "" },
+  },
+
+  // The dark band. Every figure here is structural — it describes the build,
+  // not traffic. Swap in real platform numbers once you can source them.
+  scope: [
+    { value: 3, label: "Surfaces shipped",  sub: "customer app, admin panel, vendor dashboard" },
+    { value: 3, label: "User types",        sub: "guests, vendors, administrators" },
+    { value: 3, label: "Sign-in methods",   sub: "email, WhatsApp, Google" },
+    { value: 1, label: "Shared backend",    sub: "Node.js · MongoDB · Mongoose" },
+  ],
+
+  tech: [
+    { icon: "i-phone",  title: "Mobile",        items: ["React Native", "Android", "iOS"] },
+    { icon: "i-users",  title: "Admin & vendor", items: ["React Native admin panel", "Vendor dashboard", "Role-based views"] },
+    { icon: "i-server", title: "Backend",       items: ["Node.js", "MongoDB", "Mongoose", "PDFKit"] },
+    { icon: "i-plug",   title: "Integrations",  items: [] },  // add payment gateway, storage, push, etc. once confirmed
+  ],
+
+  instagram: [
+    // { url: "https://www.instagram.com/reel/XXXXXXXX/", label: "with @creator" },
+  ],
+
+  github: [
+    { label: "Mobile app",       description: "React Native · Android + iOS",    url: "", private: false },
+  ],
+};
+
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const isPreview = location.protocol === "file:" || ["localhost", "127.0.0.1", ""].includes(location.hostname);
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const svg = (id, cls = "icon") => `<svg class="${cls}" aria-hidden="true"><use href="#${id}"/></svg>`;
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const host = (url) => { try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return url; } };
+
+  /* ---------- Text + links from CONFIG ---------- */
+  $$("[data-bind]").forEach((el) => { const v = CONFIG[el.dataset.bind]; if (v) el.textContent = v; });
+  $$("[data-href]").forEach((el) => {
+    const v = CONFIG[el.dataset.href];
+    if (v) { el.href = v; return; }
+    // No link yet: hide the element, or fall back to plain text.
+    if ("hideEmpty" in el.dataset) el.hidden = true;
+    else if (el.dataset.soon) el.replaceWith(document.createTextNode(el.dataset.soon));
+  });
+  $$("[data-label]").forEach((el) => { const v = CONFIG[el.dataset.label]; if (v) el.textContent = host(v); });
+  if (CONFIG.name) document.title = `Noida Farms · ${CONFIG.name}`;
+
+  const contacts = [
+    CONFIG.contact.email && { href: `mailto:${CONFIG.contact.email}`, icon: "i-mail", label: "Email", fill: false },
+    CONFIG.contact.linkedin && { href: CONFIG.contact.linkedin, icon: "i-linkedin", label: "LinkedIn", fill: true },
+    CONFIG.contact.github && { href: CONFIG.contact.github, icon: "i-github", label: "GitHub profile", fill: true },
+  ].filter(Boolean);
+  $("#contact-links").innerHTML = contacts.map((c) =>
+    `<a href="${esc(c.href)}" target="_blank" rel="noopener" aria-label="${c.label}" title="${c.label}">${svg(c.icon, c.fill ? "icon icon-fill" : "icon")}</a>`).join("");
+  $("#foot-links").innerHTML = [
+    CONFIG.website && `<li><a href="${esc(CONFIG.website)}" target="_blank" rel="noopener">${esc(host(CONFIG.website))}</a></li>`,
+    CONFIG.playStore && `<li><a href="${esc(CONFIG.playStore)}" target="_blank" rel="noopener">Google Play</a></li>`,
+    CONFIG.appStore && `<li><a href="${esc(CONFIG.appStore)}" target="_blank" rel="noopener">App Store</a></li>`,
+    ...contacts.map((c) => `<li><a href="${esc(c.href)}" target="_blank" rel="noopener">${c.label}</a></li>`),
+  ].filter(Boolean).join("");
+
+  /* ---------- Videos ---------- */
+  const videoObserver = "IntersectionObserver" in window ? new IntersectionObserver((entries) => {
+    entries.forEach(({ target: v, isIntersecting }) => {
+      if (v.dataset.userPaused === "1" || reduceMotion) return;
+      if (isIntersecting) v.play().catch(() => {}); else v.pause();
+    });
+  }, { threshold: 0.35 }) : null;
+
+  function mountDevice(device) {
+    const key = device.dataset.video;
+    const cfg = CONFIG.videos[key] || {};
+    device.innerHTML = `<div class="phone"><div class="screen"></div></div>`;
+    const screen = $(".screen", device);
+    const placeholder = () => {
+      screen.innerHTML = `<div class="screen-ph"><img src="assets/logo.svg" alt=""><b>Noida Farms</b>${
+        isPreview ? `<span>Add your video at</span><code>${esc(cfg.src || `CONFIG.videos.${key}.src`)}</code>`
+                  : `<span>${esc(device.dataset.label || "Demo")} coming soon</span>`}</div>`;
+      $(".device-ctrls", device)?.remove();
+    };
+    if (!cfg.src) return placeholder();
+
+    const v = document.createElement("video");
+    v.muted = true; v.loop = true; v.playsInline = true; v.preload = "metadata";
+    v.setAttribute("muted", ""); v.setAttribute("playsinline", "");
+    v.setAttribute("aria-label", `${device.dataset.label || "App"} video`);
+    if (cfg.poster) v.poster = cfg.poster;
+    v.addEventListener("error", placeholder, { once: true });
+    v.addEventListener("loadedmetadata", () => {
+      if (v.videoWidth > v.videoHeight) device.classList.add("is-landscape");
+    });
+    v.src = cfg.src;
+    screen.append(v);
+
+    const ctrls = document.createElement("div");
+    ctrls.className = "device-ctrls";
+    ctrls.innerHTML = `<button type="button" data-act="toggle" aria-label="Pause video">${svg("i-pause")}</button>
+                       <button type="button" data-act="full" aria-label="Watch full screen with sound">${svg("i-expand")}</button>`;
+    device.append(ctrls);
+    const toggleBtn = $('[data-act="toggle"]', ctrls);
+    const syncToggle = () => {
+      toggleBtn.innerHTML = v.paused ? svg("i-play", "icon icon-fill") : svg("i-pause");
+      toggleBtn.setAttribute("aria-label", v.paused ? "Play video" : "Pause video");
+    };
+    v.addEventListener("play", syncToggle); v.addEventListener("pause", syncToggle); syncToggle();
+    toggleBtn.addEventListener("click", () => {
+      if (v.paused) { v.dataset.userPaused = "0"; v.play().catch(() => {}); } else { v.dataset.userPaused = "1"; v.pause(); }
+    });
+    $('[data-act="full"]', ctrls).addEventListener("click", () => {
+      v.muted = false; v.controls = true; v.play().catch(() => {});
+      if (v.requestFullscreen) v.requestFullscreen().catch(() => {});
+      else if (v.webkitEnterFullscreen) v.webkitEnterFullscreen();
+    });
+    const exitFull = () => { if (!document.fullscreenElement) { v.controls = false; v.muted = true; } };
+    document.addEventListener("fullscreenchange", exitFull);
+    v.addEventListener("webkitendfullscreen", () => { v.controls = false; v.muted = true; });
+
+    if (videoObserver) videoObserver.observe(v);
+    else if (!reduceMotion) v.play().catch(() => {});
+  }
+  $$(".device[data-video]").forEach(mountDevice);
+
+  /* ---------- Hero image ---------- */
+  (function renderHero() {
+    const holder = $("#hero-shot");
+    const { src, framed, alt } = CONFIG.hero || {};
+    const phone = (inner) => `<div class="device"><div class="phone"><div class="screen">${inner}</div></div></div>`;
+    const placeholder = () => {
+      holder.innerHTML = phone(`<div class="screen-ph"><img src="assets/logo.svg" alt=""><b>Noida Farms</b>${
+        isPreview ? `<span>Add your hero image at</span><code>${esc(src || "CONFIG.hero.src")}</code>` : ""}</div>`);
+    };
+    if (!src) return placeholder();
+    const img = new Image();
+    img.alt = alt || "Noida Farms app";
+    img.decoding = "async";
+    img.fetchPriority = "high";
+    img.onerror = placeholder;
+    img.className = framed ? "screen-img" : "hero-img";
+    img.src = src;
+    if (framed) { holder.innerHTML = phone(""); $(".screen", holder).append(img); }
+    else holder.append(img);
+  })();
+
+  /* ---------- Scope figures ---------- */
+  (function renderScope() {
+    const grid = $("#scope-grid");
+    const items = (CONFIG.scope || []).filter((s) => s && s.label);
+    if (!items.length) {
+      if (!isPreview) { $("#scope").hidden = true; return; }
+      grid.outerHTML = `<div class="stat-ph reveal in">Add figures to <code>CONFIG.scope</code> to fill this band.</div>`;
+      return;
+    }
+    grid.innerHTML = items.map((s) => `
+      <div class="stat">
+        <span class="num" data-count="${Number(s.value) || 0}"${s.suffix ? ` data-suffix="${esc(s.suffix)}"` : ""}>${esc(s.value)}${esc(s.suffix || "")}</span>
+        <span class="label">${esc(s.label)}</span>
+        ${s.sub ? `<span class="sub">${esc(s.sub)}</span>` : ""}
+      </div>`).join("");
+  })();
+
+  /* ---------- Tech chips ---------- */
+  (function renderTech() {
+    $("#tech-grid").innerHTML = (CONFIG.tech || []).map((g) => {
+      const items = (g.items || []).filter(Boolean);
+      if (!items.length && !isPreview) return "";
+      const chips = items.length
+        ? items.map((i) => `<span>${esc(i)}</span>`).join("")
+        : `<span class="ph">Add to CONFIG.tech &rarr; ${esc(g.title)}</span>`;
+      return `<div class="card tech reveal">
+        <h3>${svg(g.icon)}${esc(g.title)}</h3>
+        <div class="chips">${chips}</div>
+      </div>`;
+    }).join("");
+  })();
+
+  /* ---------- Instagram collabs ---------- */
+  (function renderReels() {
+    const grid = $("#reel-grid");
+    const section = $("#collabs");
+    // Section removed/commented out: bail out so we don't crash the whole page script.
+    if (!grid || !section) {
+      $('[data-nav="collabs"]')?.remove();
+      return;
+    }
+    const reels = (CONFIG.instagram || []).filter((r) => r && r.url);
+    if (!reels.length) {
+      if (!isPreview) { section.hidden = true; $('[data-nav="collabs"]')?.remove(); return; }
+      grid.innerHTML = [1, 2, 3].map(() =>
+        `<div class="reel"><div class="reel-ph">${svg("i-instagram")}<span>Add a reel URL to<br><code>CONFIG.instagram</code></span></div></div>`).join("");
+      return;
+    }
+    grid.innerHTML = reels.map((r) => `
+      <div class="reel">
+        <blockquote class="instagram-media" data-instgrm-permalink="${esc(r.url)}" data-instgrm-version="14">
+          <a href="${esc(r.url)}" target="_blank" rel="noopener">View this post on Instagram</a>
+        </blockquote>
+        ${r.label ? `<div class="reel-label">${esc(r.label)}</div>` : ""}
+      </div>`).join("");
+    const s = document.createElement("script");
+    s.async = true; s.src = "https://www.instagram.com/embed.js";
+    s.onload = () => window.instgrm && window.instgrm.Embeds.process();
+    document.body.append(s);
+  })();
+
+  /* ---------- GitHub repos ---------- */
+  (function renderRepos() {
+    const grid = $("#repo-grid");
+    const repos = (CONFIG.github || []).filter((r) => r.url || r.private || isPreview);
+    if (!repos.length) { $("#code").hidden = true; $('[data-nav="code"]').hidden = true; return; }
+    grid.innerHTML = repos.map((r) => {
+      const inner = `
+        <span class="repo-icon">${svg(r.private ? "i-lock" : "i-github", r.private ? "icon" : "icon icon-fill")}</span>
+        <div>
+          <b>${esc(r.label)}</b>
+          <p>${esc(r.description || "")}</p>
+          ${r.url ? `<span class="repo-cta">View repository ${svg("i-arrow")}</span>`
+            : r.private ? `<span class="repo-cta muted">Private repo · walkthrough on request</span>`
+            : `<span class="repo-cta muted">Add a url in CONFIG.github</span>`}
+        </div>`;
+      return r.url
+        ? `<a class="card repo reveal in" href="${esc(r.url)}" target="_blank" rel="noopener">${inner}</a>`
+        : `<div class="card repo reveal in${r.private ? "" : " is-missing"}">${inner}</div>`;
+    }).join("");
+  })();
+
+  /* ---------- Download buttons ---------- */
+  (function renderStores() {
+    const stores = [
+      { key: "appStore",  icon: "i-apple",      fill: true,  small: "Download on the", big: "App Store",   cls: "" },
+      { key: "playStore", icon: "i-play-store", fill: true,  small: "Get it on",       big: "Google Play", cls: "" },
+      { key: "website",   icon: "i-globe",      fill: false, small: "Or use the",      big: "Website",     cls: " web" },
+    ];
+    const live = stores.filter((s) => CONFIG[s.key]);
+    if (!live.length && !isPreview) { $("#download").hidden = true; return; }
+    if (!live.length) $("#download-sub").textContent = "Paste your store links into CONFIG to light these up.";
+    $("#store-row").innerHTML = (live.length ? live : stores).map((s) => {
+      const url = CONFIG[s.key];
+      const body = `${svg(s.icon, s.fill ? "icon icon-fill" : "icon")}<span><small>${url ? s.small : "Coming soon"}</small><b>${s.big}</b></span>`;
+      return url
+        ? `<a class="store-btn${s.cls}" href="${esc(url)}" target="_blank" rel="noopener">${body}</a>`
+        : `<span class="store-btn is-soon">${body}</span>`;
+    }).join("");
+  })();
+
+  /* ---------- Count-up, scroll reveal, nav ---------- */
+  const fmt = (n) => Number(n).toLocaleString("en-IN");
+  function countUp(el, to, suffix = "") {
+    if (reduceMotion) { el.textContent = fmt(to) + suffix; return; }
+    const start = performance.now(), dur = 1100;
+    const step = (now) => {
+      const p = Math.min(1, (now - start) / dur);
+      el.textContent = fmt(Math.round(to * (1 - Math.pow(1 - p, 3)))) + suffix;
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        e.target.classList.add("in");
+        $$("[data-count]", e.target).forEach((n) => countUp(n, +n.dataset.count, n.dataset.suffix || ""));
+        io.unobserve(e.target);
+      });
+    }, { threshold: 0.15, rootMargin: "0px 0px -40px 0px" });
+    $$(".reveal").forEach((el) => io.observe(el));
+  } else {
+    $$(".reveal").forEach((el) => el.classList.add("in"));
+  }
+
+  const nav = $("#nav");
+  const onScroll = () => nav.classList.toggle("scrolled", window.scrollY > 8);
+  addEventListener("scroll", onScroll, { passive: true }); onScroll();
+})();
+</script>
+</body>
+</html>
