@@ -337,7 +337,8 @@
   footer { background: var(--night); color: var(--night-muted); padding: 48px 0 40px; font-size: 14px; }
   .foot { display: flex; flex-wrap: wrap; gap: 24px 40px; justify-content: space-between; align-items: flex-start; }
   .foot .brand span { color: var(--night-text); }
-  .foot .brand img { filter: brightness(0) invert(1); opacity: .92; }
+  /* Real lockup has a white artboard — invert made it a blank square on the dark footer. */
+  .foot .brand img { background: #fff; border-radius: 8px; }
   .foot p { margin: 12px 0 0; max-width: 52ch; }
   .foot p a { color: inherit; text-decoration: none; }
   .foot p a:hover { color: var(--green); }
@@ -417,7 +418,8 @@
         <h1>Noida <span class="farms">Farms</span></h1>
         <p class="lead">Farmhouse renting — discovery, availability and booking in one app, with a vendor dashboard and an admin panel behind it.</p>
         <div class="byline">
-          <span>Designed &amp; built by <strong data-bind="name">Abhishek Jaiswal</strong></span>
+          <span>Designed &amp; built by <strong><a href="https://abhishekjaiswal.net" target="_blank"
+            rel="noopener">Abhishek Jaiswal</a></strong></span>
           <span class="sep" aria-hidden="true"></span>
           <span data-bind="role">Full-Stack &amp; Mobile Developer</span>
           <span class="contact-links" id="contact-links"></span>
@@ -441,14 +443,6 @@
       <div class="hero-visual">
         <div class="halo" aria-hidden="true"></div>
         <img class="mark" src="assets/logo.svg" alt="" aria-hidden="true">
-        <div class="float-chip chip-a">
-          <span class="chip-icon"><svg class="icon"><use href="#i-home"/></svg></span>
-          <div>Farmhouse listings<small>search, filters and details</small></div>
-        </div>
-        <div class="float-chip chip-b">
-          <span class="chip-icon"><svg class="icon"><use href="#i-calendar"/></svg></span>
-          <div>Date availability<small>kept by each vendor</small></div>
-        </div>
         <div class="hero-shot" id="hero-shot"></div>
       </div>
     </div>
@@ -689,7 +683,7 @@ const CONFIG = {
 
   // Hero image. framed:true = a plain screen capture, the page wraps it in a phone frame.
   //             framed:false = the image already contains the phone (transparent PNG).
-  hero: { src: "assets/images/hero.png", framed: true, alt: "Noida Farms app home screen with farmhouse listings and search" },
+  hero: { src: "assets/images/Hero.png", framed: true, alt: "Noida Farms app home screen with farmhouse listings and search" },
 
   videos: {
     android: { src: "assets/videos/android.mp4", poster: "" },
@@ -771,7 +765,7 @@ const CONFIG = {
     const screen = $(".screen", device);
     const placeholder = () => {
       screen.innerHTML = `<div class="screen-ph"><img src="assets/logo.svg" alt=""><b>Noida Farms</b>${
-        isPreview ? `<span>Add your video at</span><code>${esc(cfg.src || `CONFIG.videos.${key}.src`)}</code>`
+        isPreview ? `<span>Video coming soon</span><code>${esc(cfg.src || `CONFIG.videos.${key}.src`)}</code>`
                   : `<span>${esc(device.dataset.label || "Demo")} coming soon</span>`}</div>`;
       $(".device-ctrls", device)?.remove();
     };
